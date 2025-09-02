@@ -121,7 +121,7 @@ export default function HeroSection() {
     setCenterIndex((i) => (i + 1) % initialProducts.length)
 
   return (
-    <section className="relative mx-auto max-w-6xl px-4 py-16 overflow-hidden">
+    <section className="relative mx-auto max-w-6xl px-4 py-1 overflow-hidden">
       {/* Dynamic animated background */}
       <div className="absolute inset-0 -z-20">
         {/* Animated gradient mesh */}
@@ -163,7 +163,7 @@ export default function HeroSection() {
         </div>
 
         {/* Geometric patterns */}
-        <div className="absolute inset-0 opacity-5">
+        {/* <div className="absolute inset-0 opacity-5">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
               <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -172,7 +172,7 @@ export default function HeroSection() {
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />
           </svg>
-        </div>
+        </div> */}
 
         {/* Floating orbs */}
         {[...Array(6)].map((_, i) => (
@@ -203,7 +203,7 @@ export default function HeroSection() {
       <div className="relative z-10">
         {/* Enhanced headline */}
         <motion.div 
-          className="mb-12 flex flex-col items-center text-center"
+          className="mb-6 flex flex-col items-center text-center"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
@@ -228,14 +228,7 @@ export default function HeroSection() {
           >
             Signature Collection
           </motion.h1>
-          <motion.p 
-            className="mt-4 text-lg text-zinc-400 max-w-2xl"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-          >
-            Discover our most coveted pieces, crafted for those who dare to stand out
-          </motion.p>
+          
         </motion.div>
 
         {/* Enhanced products display */}
