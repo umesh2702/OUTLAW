@@ -131,8 +131,7 @@
     position: relative;
     min-height: 100svh;
     background: radial-gradient(ellipse at top, rgba(201, 122, 64, 0.03) 0%, transparent 50%),
-                radial-gradient(ellipse at bottom, rgba(201, 122, 64, 0.02) 0%, transparent 50%),
-                #0a0a0a;
+      radial-gradient(ellipse at bottom, rgba(201, 122, 64, 0.02) 0%, transparent 50%), #0a0a0a;
   }
   body::before {
     content: "";

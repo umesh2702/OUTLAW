@@ -1,17 +1,9 @@
 "use client"
 
 import type React from "react"
-import { motion } from "framer-motion"
 import Image from "next/image"
 import { BRAND_ACCENT } from "@/lib/constants"
-
-export type Product = {
-  id: string
-  name: string
-  price: string
-  imageSrc: string
-  imageAlt: string
-}
+import type { Product } from "@/types/product"
 
 type Props = {
   product: Product
@@ -30,17 +22,11 @@ export default function ProductCard({ product, size = "md", onClick, highlighted
   const dimension = sizeMap[size]
 
   return (
-    <motion.button
+    <button
       onClick={onClick}
-      whileHover={{ 
-        scale: highlighted ? 1.03 : 1.08,
-        y: -8,
-      }}
-      whileTap={{ scale: 0.95 }}
-      className="group relative flex flex-col items-center focus:outline-none"
+      className="group relative flex flex-col items-center focus:outline-none transition-transform duration-300 hover:scale-105 hover:-translate-y-2"
       aria-label={`View ${product.name}`}
       style={{ ["--brand-accent" as any]: BRAND_ACCENT } as React.CSSProperties}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
       {/* Enhanced container with better shadows and effects */}
       <div
@@ -49,11 +35,11 @@ export default function ProductCard({ product, size = "md", onClick, highlighted
       >
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-zinc-900/20" />
-        
+
         {/* Product image */}
         <Image
-          src={product.imageSrc || "/placeholder.svg?height=800&width=800&query=fashion%20product"}
-          alt={product.imageAlt}
+          src={product.image_url || `/placeholder.svg?height=800&width=800&query=${encodeURIComponent(product.name)}`}
+          alt={product.name}
           fill
           sizes={`${dimension}px`}
           className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -63,13 +49,13 @@ export default function ProductCard({ product, size = "md", onClick, highlighted
         {/* Enhanced hover effects */}
         <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
           {/* Shimmer effect */}
-          <div 
+          <div
             className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"
             style={{
               background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)`,
             }}
           />
-          
+
           {/* Corner accents */}
           <div className="absolute top-3 left-3 w-6 h-6 border-l-2 border-t-2 border-[color:var(--brand-accent)]/60 rounded-tl-lg" />
           <div className="absolute bottom-3 right-3 w-6 h-6 border-r-2 border-b-2 border-[color:var(--brand-accent)]/60 rounded-br-lg" />
@@ -80,26 +66,19 @@ export default function ProductCard({ product, size = "md", onClick, highlighted
       </div>
 
       {/* Enhanced product meta */}
-      <motion.div 
-        className="mt-4 text-center"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
+      <div className="mt-4 text-center">
         <p className="text-base font-semibold text-zinc-100 group-hover:text-[color:var(--brand-accent)] transition-colors duration-300">
           {product.name}
         </p>
-        <p className="text-sm text-zinc-400 mt-1 font-medium">{product.price}</p>
-        
-        {/* Quick action hint */}
-        <motion.p 
-          className="text-xs text-zinc-500 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          initial={{ y: 5 }}
-          animate={{ y: 0 }}
-        >
-          Click to feature
-        </motion.p>
-      </motion.div>
-    </motion.button>
+        <p className="text-sm text-zinc-400 mt-1 font-medium">${product.price}</p>
+        <p className="text-xs text-zinc-500 mt-1">{product.category}</p>
+
+        {/* Stock indicator */}
+        {product.stock_quantity <= 5 && product.stock_quantity > 0 && (
+          <p className="text-xs text-amber-400 mt-1">Only {product.stock_quantity} left!</p>
+        )}
+        {product.stock_quantity === 0 && <p className="text-xs text-red-400 mt-1">Out of Stock</p>}
+      </div>
+    </button>
   )
 }

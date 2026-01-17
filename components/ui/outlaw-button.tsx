@@ -22,8 +22,23 @@ const sheen =
   "before:absolute before:inset-0 before:-translate-x-full before:bg-[linear-gradient(110deg,transparent,rgba(255,255,255,.22),transparent)] " +
   "hover:before:translate-x-full before:transition-transform before:duration-700"
 
-export function OutlawButton({ href, className, children, ...rest }: OutlawButtonProps) {
-  const Btn = (
+export function OutlawButton({ href, className, children, ...rest }: OutlawButtonProps & React.ComponentProps<typeof motion.button>) {
+  if (href) {
+    return (
+      <Link href={href} legacyBehavior passHref>
+        <motion.a
+          whileHover={{ y: -1.5, scale: 1.015 }}
+          whileTap={{ y: 0, scale: 0.985 }}
+          className={cn(base, sheen, className)}
+          {...(rest as any)}
+        >
+          {children}
+        </motion.a>
+      </Link>
+    )
+  }
+
+  return (
     <motion.button
       whileHover={{ y: -1.5, scale: 1.015 }}
       whileTap={{ y: 0, scale: 0.985 }}
@@ -33,13 +48,4 @@ export function OutlawButton({ href, className, children, ...rest }: OutlawButto
       {children}
     </motion.button>
   )
-
-  if (href) {
-    return (
-      <Link href={href} legacyBehavior>
-        {Btn}
-      </Link>
-    )
-  }
-  return Btn
 }
