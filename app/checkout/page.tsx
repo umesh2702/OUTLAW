@@ -72,11 +72,12 @@ export default function CheckoutPage() {
         setError(null)
 
         try {
-            const currentUser = user
+            // Use user.id if available, otherwise fall back to profile.id from localStorage
+            const userId = user?.id || profile?.id
 
-            if (!currentUser) {
+            if (!userId) {
                 setIsProcessing(false)
-                router.push("/auth?redirect=/checkout")
+                setError("Please sign in to continue.")
                 return
             }
 
@@ -122,7 +123,7 @@ export default function CheckoutPage() {
                 handler: function (response: any) {
                     // Store payment data + order info in sessionStorage
                     const orderPayload = {
-                        user_id: currentUser.id,
+                        user_id: userId,
                         order_number: generateOrderNumber(),
                         status: "confirmed",
                         subtotal: cartTotal,
