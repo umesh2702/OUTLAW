@@ -35,7 +35,7 @@ function generateOrderNumber() {
 export default function CheckoutPage() {
     const router = useRouter()
     const { cartItems, cartTotal } = useCart()
-    const { isLoggedIn, profile, user } = useAuth()
+    const { isLoggedIn, profile, user, loading: authLoading } = useAuth()
     const [isProcessing, setIsProcessing] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [razorpayLoaded, setRazorpayLoaded] = useState(false)
@@ -187,7 +187,16 @@ export default function CheckoutPage() {
         }
     }
 
-    // Redirect to auth if not logged in
+    // Show loading while auth state initializes
+    if (authLoading) {
+        return (
+            <main className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-red-400" />
+            </main>
+        )
+    }
+
+    // Redirect to auth if not logged in (only after auth has finished loading)
     if (!isLoggedIn) {
         return (
             <main className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center">
