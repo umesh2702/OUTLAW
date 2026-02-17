@@ -26,7 +26,6 @@ export default function ProfileDropdown({ mobileView = false }: ProfileDropdownP
   }, [])
 
   const handleSignOut = async () => {
-    console.log("Logout clicked")
     setIsOpen(false)
 
     // Clear all localStorage items related to Supabase and our app
@@ -53,8 +52,7 @@ export default function ProfileDropdown({ mobileView = false }: ProfileDropdownP
       console.error("SignOut error:", e)
     }
 
-    // Force hard redirect
-    window.location.replace("/")
+    // No hard redirect - let AuthContext update state and UI
   }
 
   const displayName = profile?.outlaw_id || "User"
@@ -69,8 +67,8 @@ export default function ProfileDropdown({ mobileView = false }: ProfileDropdownP
           setIsOpen(!isOpen)
         }}
         className={`flex items-center cursor-pointer transition-colors ${mobileView
-            ? "p-2 text-zinc-400 hover:text-white"
-            : "gap-2 px-3 py-2 rounded-lg bg-zinc-900/50 border border-zinc-800 hover:border-red-500/50 text-zinc-300 hover:text-white"
+          ? "p-2 text-zinc-400 hover:text-white"
+          : "gap-2 px-3 py-2 rounded-lg bg-zinc-900/50 border border-zinc-800 hover:border-red-500/50 text-zinc-300 hover:text-white"
           }`}
       >
         <div className={`rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center ${mobileView ? "w-7 h-7" : "w-8 h-8"
@@ -106,14 +104,20 @@ export default function ProfileDropdown({ mobileView = false }: ProfileDropdownP
 
           {/* Menu Items */}
           <div className="py-2">
-            <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer">
+            <a
+              href="/profile"
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+            >
               <Settings className="w-4 h-4" />
-              Settings
-            </button>
-            <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer">
+              Profile
+            </a>
+            <a
+              href="/orders"
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+            >
               <Package className="w-4 h-4" />
               Your Orders
-            </button>
+            </a>
           </div>
 
           {/* Logout */}

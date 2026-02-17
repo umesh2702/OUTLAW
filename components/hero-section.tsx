@@ -159,7 +159,7 @@ function SideProductCard({ product, onClick }: SideProductCardProps) {
       <p className="mt-4 text-base font-semibold text-zinc-100 group-hover:text-[color:var(--brand-accent)] transition-colors duration-300">
         {product.name}
       </p>
-      <p className="text-sm text-zinc-400 mt-1 font-medium">${product.price}</p>
+      <p className="text-sm text-zinc-400 mt-1 font-medium">₹{product.price}</p>
       {/* Subtle glow */}
       <div
         className="absolute inset-0 -z-10 rounded-2xl opacity-20"
@@ -295,7 +295,7 @@ export default function HeroSection() {
                     transition={{ delay: 0.2 }}
                   >
                     <h3 className="text-2xl font-bold text-zinc-100 mb-2">{center.name}</h3>
-                    <p className="text-3xl font-bold text-[color:var(--brand-accent)] mb-6">${center.price}</p>
+                    <p className="text-3xl font-bold text-[color:var(--brand-accent)] mb-6">₹{center.price}</p>
 
                     {/* CTA */}
                     <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">

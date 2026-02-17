@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
 
 interface Profile {
@@ -11,6 +11,7 @@ interface Profile {
   name: string
   mobile: string
   outlaw_id: string
+  created_at: string
 }
 
 interface AuthContextType {
@@ -19,6 +20,7 @@ interface AuthContextType {
   loading: boolean
   isLoggedIn: boolean
   signOut: () => Promise<void>
+  supabase: ReturnType<typeof createClient>
 }
 
 const AUTH_STORAGE_KEY = "outlaw_auth"
@@ -65,8 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [isLoggedIn, setIsLoggedIn] = useState(initialState.isLoggedIn)
 
+  // Create client once
+  const [supabase] = useState(() => createClient())
+
   useEffect(() => {
-    const supabase = createClient()
     let isMounted = true
 
     // Get initial session
@@ -144,32 +148,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isMounted = false
       subscription.unsubscribe()
     }
-  }, [])
+  }, [supabase])
 
   const signOut = async () => {
     console.log("AuthContext: signOut called")
-    try {
-      const supabase = createClient()
-      // Use scope: 'global' to sign out from all tabs/windows
-      const { error } = await supabase.auth.signOut({ scope: 'global' })
-      if (error) {
-        console.error("AuthContext: signOut error:", error)
-      } else {
-        console.log("AuthContext: supabase signOut completed")
-      }
-    } catch (error) {
-      console.error("AuthContext: signOut exception:", error)
-    }
-    // Always clear state regardless of supabase result
+
+    // Clear local state IMMEDIATELY to update UI
     setUser(null)
     setProfile(null)
     setIsLoggedIn(false)
     saveAuthState(null)
+    setLoading(false) // Force loading to false to show "Enter" button immediately
+
+    try {
+      // Use scope: 'global' to sign out from all tabs/windows
+      // We don't await this because if it hangs, we still want the UI to update
+      supabase.auth.signOut({ scope: 'global' }).then(({ error }) => {
+        if (error) console.error("AuthContext: signOut error:", error)
+        else console.log("AuthContext: supabase signOut completed")
+      })
+    } catch (error) {
+      console.error("AuthContext: signOut exception:", error)
+    }
     console.log("AuthContext: state cleared")
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, isLoggedIn, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, isLoggedIn, signOut, supabase }}>
       {children}
     </AuthContext.Provider>
   )

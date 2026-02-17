@@ -1,3 +1,6 @@
+export const AVAILABLE_SIZES = ["S", "M", "L", "XL", "XXL"] as const
+export type Size = (typeof AVAILABLE_SIZES)[number]
+
 export interface Product {
   id: string
   name: string
@@ -15,6 +18,7 @@ export interface CartItem {
   user_id: string
   product_id: string
   quantity: number
+  size: Size
   created_at: string
   product?: Product
 }

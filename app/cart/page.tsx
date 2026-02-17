@@ -70,7 +70,7 @@ export default function CartPage() {
         <div className="space-y-4 mb-8">
           {cartItems.map((item) => (
             <div
-              key={item.productId}
+              key={`${item.productId}_${item.size}`}
               className="flex items-center gap-4 rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 hover:border-zinc-700 transition-colors"
             >
               {/* Image */}
@@ -86,15 +86,19 @@ export default function CartPage() {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-zinc-100 truncate">{item.product?.name}</h3>
-                <p className="text-sm text-zinc-400 capitalize">{item.product?.category}</p>
-                <p className="text-lg font-bold text-red-400 mt-1">${item.product?.price}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <p className="text-sm text-zinc-400 capitalize">{item.product?.category}</p>
+                  <span className="text-zinc-600">•</span>
+                  <span className="text-xs font-medium px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-300">Size: {item.size}</span>
+                </div>
+                <p className="text-lg font-bold text-red-400 mt-1">₹{item.product?.price}</p>
               </div>
 
               {/* Quantity */}
               <div className="flex items-center gap-2">
                 <button
                   aria-label="Decrease quantity"
-                  onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                  onClick={() => updateQuantity(item.productId, item.quantity - 1, item.size)}
                   className="w-8 h-8 rounded-lg border border-zinc-700 flex items-center justify-center hover:bg-zinc-800 transition-colors cursor-pointer"
                 >
                   <Minus className="w-4 h-4" />
@@ -102,7 +106,7 @@ export default function CartPage() {
                 <span className="w-8 text-center font-medium">{item.quantity}</span>
                 <button
                   aria-label="Increase quantity"
-                  onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                  onClick={() => updateQuantity(item.productId, item.quantity + 1, item.size)}
                   className="w-8 h-8 rounded-lg border border-zinc-700 flex items-center justify-center hover:bg-zinc-800 transition-colors cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
@@ -112,11 +116,11 @@ export default function CartPage() {
               {/* Subtotal & Remove */}
               <div className="text-right">
                 <p className="font-semibold text-zinc-100">
-                  ${((item.product?.price || 0) * item.quantity).toFixed(2)}
+                  ₹{((item.product?.price || 0) * item.quantity).toFixed(2)}
                 </p>
                 <button
                   aria-label="Remove item"
-                  onClick={() => removeFromCart(item.productId)}
+                  onClick={() => removeFromCart(item.productId, item.size)}
                   className="text-red-400 hover:text-red-300 transition-colors mt-1 cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -130,7 +134,7 @@ export default function CartPage() {
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
           <div className="flex items-center justify-between mb-4">
             <span className="text-zinc-400">Subtotal</span>
-            <span className="font-semibold">${cartTotal.toFixed(2)}</span>
+            <span className="font-semibold">₹{cartTotal.toFixed(2)}</span>
           </div>
           <div className="flex items-center justify-between mb-4">
             <span className="text-zinc-400">Shipping</span>
@@ -138,13 +142,13 @@ export default function CartPage() {
           </div>
           <div className="border-t border-zinc-800 pt-4 flex items-center justify-between">
             <span className="text-lg font-semibold">Total</span>
-            <span className="text-2xl font-bold text-red-400">${cartTotal.toFixed(2)}</span>
+            <span className="text-2xl font-bold text-red-400">₹{cartTotal.toFixed(2)}</span>
           </div>
-          <OutlawButton href="#" className="w-full mt-6 cursor-pointer">
+          <OutlawButton href="/checkout" className="w-full mt-6 cursor-pointer">
             Proceed to Checkout
           </OutlawButton>
           <p className="text-xs text-zinc-500 text-center mt-4">
-            Secure checkout powered by Stripe
+            Secure checkout • Free shipping
           </p>
         </div>
       </div>

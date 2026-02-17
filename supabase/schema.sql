@@ -89,6 +89,83 @@ using ( auth.uid() = user_id );
 -- insert into storage.buckets (id, name) values ('products', 'products');
 -- insert into storage.policies (name, definition, bucket_id, read) values ('Public Access', 'true', 'products', true);
 
+-- ORDERS TABLE
+create table public.orders (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade not null,
+  order_number text unique not null,
+  status text default 'pending' check (status in ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled')),
+  subtotal numeric not null,
+  shipping_cost numeric default 0,
+  total numeric not null,
+  -- Shipping info
+  shipping_name text not null,
+  shipping_email text not null,
+  shipping_phone text,
+  shipping_address text not null,
+  shipping_city text not null,
+  shipping_state text,
+  shipping_zip text not null,
+  shipping_country text default 'India',
+  -- Payment info
+  payment_status text default 'pending' check (payment_status in ('pending', 'paid', 'failed', 'refunded')),
+  payment_method text default 'razorpay',
+  razorpay_payment_id text,
+  razorpay_order_id text,
+  -- Timestamps
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Enable RLS for orders
+alter table public.orders enable row level security;
+
+-- Policies for orders
+create policy "Users can view their own orders" 
+on public.orders for select 
+using ( auth.uid() = user_id );
+
+create policy "Users can create their own orders" 
+on public.orders for insert 
+with check ( auth.uid() = user_id );
+
+-- ORDER_ITEMS TABLE
+create table public.order_items (
+  id uuid default gen_random_uuid() primary key,
+  order_id uuid references public.orders on delete cascade not null,
+  product_id uuid references public.products on delete set null,
+  product_name text not null,
+  product_price numeric not null,
+  product_image text,
+  quantity integer not null,
+  subtotal numeric not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Enable RLS for order_items
+alter table public.order_items enable row level security;
+
+-- Policies for order_items (via order relationship)
+create policy "Users can view their own order items" 
+on public.order_items for select 
+using ( 
+  exists (
+    select 1 from public.orders 
+    where orders.id = order_items.order_id 
+    and orders.user_id = auth.uid()
+  )
+);
+
+create policy "Users can create their own order items" 
+on public.order_items for insert 
+with check ( 
+  exists (
+    select 1 from public.orders 
+    where orders.id = order_items.order_id 
+    and orders.user_id = auth.uid()
+  )
+);
+
 
 -- INITIAL SEED DATA (Optional - basic t-shirts)
 insert into public.products (name, description, price, image_url, category, stock_quantity)

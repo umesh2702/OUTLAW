@@ -70,7 +70,7 @@ export default function ProductCard({ product, size = "md", onClick, highlighted
         <p className="text-base font-semibold text-zinc-100 group-hover:text-[color:var(--brand-accent)] transition-colors duration-300">
           {product.name}
         </p>
-        <p className="text-sm text-zinc-400 mt-1 font-medium">${product.price}</p>
+        <p className="text-sm text-zinc-400 mt-1 font-medium">₹{product.price}</p>
         <p className="text-xs text-zinc-500 mt-1">{product.category}</p>
 
         {/* Stock indicator */}

@@ -8,9 +8,18 @@ import { AuthProvider } from "@/contexts/auth-context"
 import { CartProvider } from "@/contexts/cart-context"
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
-  generator: "v0.app",
+  title: {
+    default: "OUTLAW — Rebellious Fashion",
+    template: "%s | OUTLAW",
+  },
+  description: "Premium streetwear for those who dare to stand out. Shop the OUTLAW collection — bold, rebellious, and unapologetically different.",
+  keywords: ["streetwear", "fashion", "OUTLAW", "t-shirts", "clothing", "rebellious fashion", "premium streetwear"],
+  openGraph: {
+    title: "OUTLAW — Rebellious Fashion",
+    description: "Premium streetwear for those who dare to stand out.",
+    type: "website",
+    siteName: "OUTLAW",
+  },
 }
 
 export default function RootLayout({

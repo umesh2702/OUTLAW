@@ -23,20 +23,19 @@ export default function SignupForm() {
     e.preventDefault()
     setError("")
 
-    console.log("[v0] Form submitted, step:", step)
+
 
     if (step === "details") {
-      console.log("[v0] Moving to identity step")
       setStep("identity")
       return
     }
 
     setIsLoading(true)
-    console.log("[v0] Starting signup process")
+
 
     try {
       // Check if outlaw_id already exists
-      console.log("[v0] Checking if outlaw ID exists:", outlawId)
+
       const { exists } = await checkOutlawIdExists(outlawId)
       if (exists) {
         setError("This Outlaw ID is already taken")
@@ -45,7 +44,7 @@ export default function SignupForm() {
       }
 
       // Create auth user with email and vault_code as password
-      console.log("[v0] Creating auth user")
+
       const { data: authData, error: authError } = await signUpWithEmail(email, vaultCode)
 
       if (authError) {
@@ -56,7 +55,7 @@ export default function SignupForm() {
       }
 
       if (authData.user) {
-        console.log("[v0] Creating profile")
+
         // Create profile record
         const { error: profileError } = await createProfile({
           id: authData.user.id,
@@ -74,11 +73,11 @@ export default function SignupForm() {
         }
       }
 
-      console.log("[v0] Signup successful")
+
       setIsLoading(false)
       setShowTransition(true)
     } catch (err) {
-      console.log("[v0] Unexpected error:", err)
+
       setError("An unexpected error occurred")
       setIsLoading(false)
     }

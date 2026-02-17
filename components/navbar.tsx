@@ -49,7 +49,16 @@ export default function Navbar() {
 
           {/* Profile / Login */}
           {isLoggedIn ? (
-            <ProfileDropdown mobileView />
+            <>
+              {/* Desktop Profile - Hidden on mobile */}
+              <div className="hidden sm:block">
+                <ProfileDropdown mobileView={false} />
+              </div>
+              {/* Mobile Profile - Hidden on desktop */}
+              <div className="sm:hidden">
+                <ProfileDropdown mobileView={true} />
+              </div>
+            </>
           ) : loading ? (
             <div className="w-8 h-8 animate-pulse bg-zinc-800 rounded-full" />
           ) : (

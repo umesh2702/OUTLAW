@@ -6,7 +6,8 @@ import Link from "next/link"
 import { ArrowLeft, Minus, Plus, ShoppingCart, Check } from "lucide-react"
 import { OutlawButton as Button } from "@/components/ui/outlaw-button"
 import { useCart } from "@/contexts/cart-context"
-import type { Product } from "@/types/product"
+import type { Product, Size } from "@/types/product"
+import { AVAILABLE_SIZES } from "@/types/product"
 
 interface ProductDetailsClientProps {
   product: Product
@@ -14,6 +15,7 @@ interface ProductDetailsClientProps {
 
 export default function ProductDetailsClient({ product }: ProductDetailsClientProps) {
   const [quantity, setQuantity] = useState(1)
+  const [selectedSize, setSelectedSize] = useState<Size>("M")
   const [isAdding, setIsAdding] = useState(false)
   const [added, setAdded] = useState(false)
   const { addToCart } = useCart()
@@ -21,7 +23,7 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
   const handleAddToCart = () => {
     setIsAdding(true)
     // Add to cart (localStorage - instant)
-    addToCart(product, quantity)
+    addToCart(product, quantity, selectedSize)
     setIsAdding(false)
     setAdded(true)
     // Reset "added" state after 2 seconds
@@ -71,7 +73,7 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
             <div>
               <p className="text-red-400 text-sm font-medium uppercase tracking-wider mb-2">{product.category}</p>
               <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
-              <p className="text-3xl font-semibold text-red-400 mb-6">${product.price}</p>
+              <p className="text-3xl font-semibold text-red-400 mb-6">₹{product.price}</p>
             </div>
 
             {/* Description */}
@@ -98,6 +100,27 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
                 </div>
               )}
             </div>
+
+            {/* Size Selector */}
+            {product.stock_quantity > 0 && (
+              <div>
+                <label className="block text-sm font-medium mb-3">Select Size</label>
+                <div className="flex flex-wrap gap-2">
+                  {AVAILABLE_SIZES.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-5 py-2.5 rounded-lg text-sm font-semibold border transition-all duration-200 cursor-pointer ${selectedSize === size
+                          ? "bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/20"
+                          : "border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white bg-zinc-800/50"
+                        }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Quantity Selector */}
             {product.stock_quantity > 0 && (
@@ -134,7 +157,7 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
                   ) : isAdding ? (
                     "Adding..."
                   ) : (
-                    <><ShoppingCart className="w-5 h-5 mr-2" /> Add to Cart - ${(product.price * quantity).toFixed(2)}</>
+                    <><ShoppingCart className="w-5 h-5 mr-2" /> Add to Cart - ₹{(product.price * quantity).toFixed(2)}</>
                   )}
                 </Button>
               </div>

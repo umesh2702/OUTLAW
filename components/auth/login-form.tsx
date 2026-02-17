@@ -20,29 +20,27 @@ export default function LoginForm() {
     setError("")
     setIsLoading(true)
 
-    console.log("[v0] Login attempt with outlaw ID:", outlawId)
+
 
     try {
       const { data, error: loginError } = await loginWithOutlawId(outlawId, vaultCode)
 
       if (loginError) {
-        console.log("[v0] Login error:", loginError)
+
         setError(loginError.message)
         setIsLoading(false)
         return
       }
 
       if (data?.user) {
-        console.log("[v0] Login successful")
         setIsLoading(false)
         setShowTransition(true)
       } else {
-        console.log("[v0] No user data returned")
         setError("Invalid Outlaw ID or Vault Code")
         setIsLoading(false)
       }
     } catch (err) {
-      console.log("[v0] Unexpected login error:", err)
+
       setError("An unexpected error occurred")
       setIsLoading(false)
     }
