@@ -187,8 +187,8 @@ export default function CheckoutPage() {
         }
     }
 
-    // Show loading while auth state initializes
-    if (authLoading) {
+    // Show loading only briefly while auth initializes (not if localStorage already has state)
+    if (authLoading && !isLoggedIn) {
         return (
             <main className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-red-400" />
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
     }
 
     // Redirect to auth if not logged in (only after auth has finished loading)
-    if (!isLoggedIn) {
+    if (!authLoading && !isLoggedIn) {
         return (
             <main className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center">
                 <div className="text-center p-8">
