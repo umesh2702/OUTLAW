@@ -8,7 +8,6 @@ import Script from "next/script"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { ArrowLeft, ShoppingBag, Loader2, Shield, CreditCard } from "lucide-react"
-import { placeOrder } from "@/app/actions/checkout"
 
 declare global {
     interface Window {
@@ -35,10 +34,9 @@ function generateOrderNumber() {
 
 export default function CheckoutPage() {
     const router = useRouter()
-    const { cartItems, cartTotal, clearCart } = useCart()
+    const { cartItems, cartTotal } = useCart()
     const { isLoggedIn, profile, user } = useAuth()
     const [isProcessing, setIsProcessing] = useState(false)
-    const [isRedirecting, setIsRedirecting] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [razorpayLoaded, setRazorpayLoaded] = useState(false)
 
@@ -121,76 +119,48 @@ export default function CheckoutPage() {
                     color: "#ef4444",
                     backdrop_color: "rgba(0, 0, 0, 0.8)",
                 },
-                handler: async function (response: any) {
-                    // Step 3: Verify payment on server
-                    try {
-                        const verifyRes = await fetch("/api/razorpay/verify-payment", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_signature: response.razorpay_signature,
-                            }),
-                        })
-
-                        const verifyData = await verifyRes.json()
-
-                        if (!verifyRes.ok || !verifyData.verified) {
-                            setError("Payment verification failed. Please contact support.")
-                            setIsProcessing(false)
-                            return
-                        }
-
-                        // Step 4: Place order in Supabase
-                        const orderPayload = {
-                            user_id: currentUser.id,
-                            order_number: generateOrderNumber(),
-                            status: "confirmed",
-                            subtotal: cartTotal,
-                            shipping_cost: 0,
-                            total: total,
-                            shipping_name: form.name,
-                            shipping_email: form.email,
-                            shipping_phone: form.phone,
-                            shipping_address: form.address,
-                            shipping_city: form.city,
-                            shipping_state: form.state,
-                            shipping_zip: form.zip,
-                            shipping_country: form.country,
-                            payment_status: "paid",
-                            payment_method: "razorpay",
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_order_id: response.razorpay_order_id,
-                        }
-
-                        const orderItemsPayload = cartItems.map(item => ({
-                            product_id: item.productId,
-                            product_name: `${item.product?.name || "Unknown Product"} (${item.size})`,
-                            product_price: item.product?.price || 0,
-                            product_image: item.product?.image_url || null,
-                            quantity: item.quantity,
-                            subtotal: (item.product?.price || 0) * item.quantity,
-                        }))
-
-                        const result = await placeOrder(orderPayload, orderItemsPayload)
-
-                        if (result.error) {
-                            setError(result.error)
-                            setIsProcessing(false)
-                            return
-                        }
-
-                        // Success! Redirect immediately, then clear cart
-                        setIsRedirecting(true)
-                        router.push(`/order-confirmation/${result.orderId}`)
-                        // Clear cart after navigation starts so user doesn't see empty cart
-                        setTimeout(() => clearCart(), 500)
-                    } catch (err) {
-                        console.error("Post-payment error:", err)
-                        setError("Payment was successful but order creation failed. Please contact support with your payment ID.")
-                        setIsProcessing(false)
+                handler: function (response: any) {
+                    // Store payment data + order info in sessionStorage
+                    const orderPayload = {
+                        user_id: currentUser.id,
+                        order_number: generateOrderNumber(),
+                        status: "confirmed",
+                        subtotal: cartTotal,
+                        shipping_cost: 0,
+                        total: total,
+                        shipping_name: form.name,
+                        shipping_email: form.email,
+                        shipping_phone: form.phone,
+                        shipping_address: form.address,
+                        shipping_city: form.city,
+                        shipping_state: form.state,
+                        shipping_zip: form.zip,
+                        shipping_country: form.country,
+                        payment_status: "paid",
+                        payment_method: "razorpay",
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_order_id: response.razorpay_order_id,
                     }
+
+                    const orderItemsPayload = cartItems.map(item => ({
+                        product_id: item.productId,
+                        product_name: `${item.product?.name || "Unknown Product"} (${item.size})`,
+                        product_price: item.product?.price || 0,
+                        product_image: item.product?.image_url || null,
+                        quantity: item.quantity,
+                        subtotal: (item.product?.price || 0) * item.quantity,
+                    }))
+
+                    sessionStorage.setItem("outlaw_pending_order", JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                        orderPayload,
+                        orderItemsPayload,
+                    }))
+
+                    // Immediately navigate to processing page
+                    router.push("/order-processing")
                 },
                 modal: {
                     ondismiss: function () {
@@ -236,22 +206,6 @@ export default function CheckoutPage() {
         )
     }
 
-    if (isRedirecting || (cartItems.length === 0 && isProcessing)) {
-        return (
-            <main className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center">
-                <div className="text-center p-8">
-                    <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
-                    <h1 className="text-2xl font-bold mb-2">Order Placed Successfully!</h1>
-                    <p className="text-zinc-400 mb-4">Redirecting to your order details...</p>
-                    <Loader2 className="w-5 h-5 animate-spin text-red-400 mx-auto" />
-                </div>
-            </main>
-        )
-    }
 
     if (cartItems.length === 0) {
         return (
